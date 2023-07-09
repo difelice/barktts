@@ -10,7 +10,7 @@ import async_timeout
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.components.tts import CONF_LANG, PLATFORM_SCHEMA, Provider
-from homeassistant.const import CONF_API_TOKEN, CONF_URL, CONTENT_TYPE_JSON
+from homeassistant.const import CONF_URL, CONTENT_TYPE_JSON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -77,19 +77,13 @@ class BarkProvider(Provider):
             with async_timeout.timeout(TIMEOUT):
                 url = f"{self._url}"
 
-                if not options:
-                    options = {}
-
                 history_prompt = DEFAULT_HISTORY_PROMPT
 
-                option_history_prompt = options.get("history_prompt")
-
-                if not option_history_prompt:
-                    if language in SUPPORT_LANGUAGES:
-                        [lng, _] = language.split("-")
-                        history_prompt = f"{lng}_speaker_{random.randint(0, 4)}"
-                    else:
-                        _LOGGER.warning("Unsupported language '%s'", language)
+                if language in SUPPORT_LANGUAGES:
+                    [lng, _] = language.split("-")
+                    history_prompt = f"{lng}_speaker_{random.randint(0, 4)}"
+                else:
+                    _LOGGER.warning("Unsupported language '%s'", language)
 
                 data = {
                     "input": {"prompt": message, "history_prompt": history_prompt},
