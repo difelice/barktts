@@ -1,3 +1,3 @@
 # BarkTTS
 
-Home Assistant custom component for AI generated voice Suno-AI Bark. using builtin TTS framework.
+This Home Assistant custom component utilizes the Suno-AI Bark AI-generated voice, making use of the built-in Text-to-Speech (TTS) framework.
