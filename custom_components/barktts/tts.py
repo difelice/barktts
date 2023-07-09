@@ -1,6 +1,7 @@
 """Support for the BarkTTS speech service."""
 import asyncio
 import base64
+import io
 import json
 import logging
 import random
@@ -13,6 +14,7 @@ from homeassistant.components.tts import CONF_LANG, PLATFORM_SCHEMA, Provider
 from homeassistant.const import CONF_URL, CONTENT_TYPE_JSON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from pydub import AudioSegment
 
 ANNOUNCER = "announcer"
 SUPPORT_LANGUAGES = [
@@ -30,6 +32,7 @@ SUPPORT_LANGUAGES = [
     "tr",  # Turkish
     "zh",  # Chinese
 ]
+TIMEOUT = 300
 
 DEFAULT_LANG = ANNOUNCER
 DEFAULT_URL = "http://localhost:5000/predictions"
@@ -40,8 +43,6 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_URL, default=DEFAULT_URL): cv.string,
     }
 )
-
-TIMEOUT = 300
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -86,14 +87,17 @@ class BarkProvider(Provider):
                 else:
                     _LOGGER.warning("Unsupported language '%s'", language)
 
-                data = {
-                    "input": {"prompt": message, "history_prompt": history_prompt},
-                }
-
-                headers = {"Content-Type": CONTENT_TYPE_JSON}
-
                 response = await websession.post(
-                    url, data=json.dumps(data), headers=headers
+                    url,
+                    data=json.dumps(
+                        {
+                            "input": {
+                                "prompt": message,
+                                "history_prompt": history_prompt,
+                            },
+                        }
+                    ),
+                    headers={"Content-Type": CONTENT_TYPE_JSON},
                 )
 
                 if not response.ok:
@@ -109,12 +113,15 @@ class BarkProvider(Provider):
                     .get("audio_out")
                     .split("data:audio/x-wav;base64,")
                 )
-                data = base64.b64decode(encoded)
+
+                audio_data = io.BytesIO(base64.b64decode(encoded))
+                audio = AudioSegment.from_wav(audio_data)
+                mp3_data = audio.export(format="mp3").read()
 
         except (asyncio.TimeoutError, aiohttp.ClientError):
             _LOGGER.error("Timeout for BarkTTS API")
             return (None, None)
 
-        if data:
-            return ("wav", data)
+        if mp3_data:
+            return ("mp3", mp3_data)
         return (None, None)
