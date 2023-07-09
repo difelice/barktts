@@ -14,8 +14,9 @@ from homeassistant.const import CONF_URL, CONTENT_TYPE_JSON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+ANNOUNCER = "announcer"
 SUPPORT_LANGUAGES = [
-    "announcer",
+    ANNOUNCER,
     "de",  # German
     "en",  # English
     "es",  # Spanish
@@ -30,7 +31,7 @@ SUPPORT_LANGUAGES = [
     "zh",  # Chinese
 ]
 
-DEFAULT_LANG = "announcer"
+DEFAULT_LANG = ANNOUNCER
 DEFAULT_URL = "http://localhost:5000/predictions"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
@@ -79,9 +80,9 @@ class BarkProvider(Provider):
 
                 history_prompt = DEFAULT_LANG
 
-                if language in SUPPORT_LANGUAGES and language != DEFAULT_LANG:
-                    [lng, _] = language.split("-")
-                    history_prompt = f"{lng}_speaker_{random.randint(0, 4)}"
+                if language in SUPPORT_LANGUAGES:
+                    if language != ANNOUNCER:
+                        history_prompt = f"{language}_speaker_{random.randint(0, 4)}"
                 else:
                     _LOGGER.warning("Unsupported language '%s'", language)
 
