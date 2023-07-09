@@ -15,23 +15,23 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 SUPPORT_LANGUAGES = [
-    "de-DE",  # German (Germany)
-    "en-US",  # English (United States)
-    "es-ES",  # Spanish (Spain)
-    "fr-FR",  # French (France)
-    "hi-IN",  # Hindi (India)
-    "it-IT",  # Italian (Italy)
-    "ja-JP",  # Japanese (Japan)
-    "ko-KR",  # Korean (South Korea)
-    "pl-PL",  # Polish (Poland)
-    "ru-RU",  # Russian (Russia)
-    "tr-TR",  # Turkish (Turkey)
-    "zh-CN",  # Chinese (Simplified, China)
+    "announcer",
+    "de",  # German
+    "en",  # English
+    "es",  # Spanish
+    "fr",  # French
+    "hi",  # Hindi
+    "it",  # Italian
+    "ja",  # Japanese
+    "ko",  # Korean
+    "pl",  # Polish
+    "ru",  # Russian
+    "tr",  # Turkish
+    "zh",  # Chinese
 ]
 
-DEFAULT_LANG = "en-US"
+DEFAULT_LANG = "announcer"
 DEFAULT_URL = "http://localhost:5000/predictions"
-DEFAULT_HISTORY_PROMPT = "announcer"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -77,9 +77,9 @@ class BarkProvider(Provider):
             with async_timeout.timeout(TIMEOUT):
                 url = f"{self._url}"
 
-                history_prompt = DEFAULT_HISTORY_PROMPT
+                history_prompt = DEFAULT_LANG
 
-                if language in SUPPORT_LANGUAGES:
+                if language in SUPPORT_LANGUAGES and language != DEFAULT_LANG:
                     [lng, _] = language.split("-")
                     history_prompt = f"{lng}_speaker_{random.randint(0, 4)}"
                 else:
