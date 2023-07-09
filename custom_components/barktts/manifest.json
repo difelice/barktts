@@ -1,0 +1,9 @@
+{
+  "domain": "barktts",
+  "name": "BarkTTS",
+  "version": "0.0.1",
+  "documentation": "https://github.com/difelice/barktts/blob/main/README.md",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["@difelice"]
+}
