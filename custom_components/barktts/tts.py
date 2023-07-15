@@ -101,8 +101,12 @@ class BarkProvider(Provider):
                 )
 
                 if not response.ok:
+                    msg = await response.text()
                     _LOGGER.error(
-                        "Error %d on load url %s", response.status, response.url
+                        "Error %d on load url %s: %s",
+                        response.status,
+                        response.url,
+                        msg,
                     )
                     return (None, None)
 
